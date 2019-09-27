@@ -36,7 +36,6 @@ public class ImportUserController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		// request.setAttribute("listaPrueba", leerMensaje());
 
 		int leidas = 0;
 		int insertadas = 0;
@@ -45,37 +44,47 @@ public class ImportUserController extends HttpServlet {
 		long tiempoAntes = System.currentTimeMillis();
 
 		try {
-			FileReader lector = new FileReader("C:\\1713\\eclipse-workspace2\\svnJon\\personas.txt");
+			FileReader lector = new FileReader("C:\\Users\\Jon\\eclipse-workspace2\\svnJon\\personas.txt");
 			BufferedReader buffer = new BufferedReader(lector);
 
 			boolean eof = false;
+			
 			while (!eof) {
+				
 				String linea = buffer.readLine();
 				if (linea == null) {
 					eof = true;
+					
 				} else {
 
 					leidas++;
 
 					Usuario usuario = new Usuario();
 
-					String[] lineaA = linea.split(","); // hacer pruebas
+					String[] lineaA = linea.split(","); 
+					
+					if(lineaA.length == 7) {
+						
+						String nombre = lineaA[0] + " " + lineaA[1] + " " + lineaA[2];
 
-					String nombre = lineaA[0] + " " + lineaA[1] + " " + lineaA[2];
+						usuario.setNombre(nombre);
+						usuario.setContrasenya(lineaA[5]);
 
-					usuario.setNombre(nombre);
-					usuario.setContrasenya(lineaA[5]);
+						try {
 
-					try {
+							usuarioDAO.crear(usuario);
+							insertadas++;
 
-						usuarioDAO.crear(usuario);
-						insertadas++;
+						} catch (Exception e) {
 
-					} catch (Exception e) {
-
+							erroneas++;
+						}
+						
+					}else {
+						
 						erroneas++;
+						
 					}
-
 				}
 			} // end while
 			buffer.close();
@@ -85,10 +94,11 @@ public class ImportUserController extends HttpServlet {
 
 		long tardadoMiliSegundos = System.currentTimeMillis() - tiempoAntes;
 		long tardadoSegundos = tardadoMiliSegundos / 1000;
-		long tardadoMin = tardadoSegundos / 60;
+		int tardadoMin = (int) (tardadoSegundos / 60);
+		int segundos = (int) (tardadoSegundos % 60);
 
 		request.setAttribute("segundos", tardadoSegundos);
-		request.setAttribute("minutos", tardadoMin);
+		request.setAttribute("minutos", segundos);
 
 		request.setAttribute("leidas", leidas);
 		request.setAttribute("insertadas", insertadas);

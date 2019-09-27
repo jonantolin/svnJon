@@ -24,14 +24,15 @@ public class UsuarioDAO {
 			+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
 			+ " LEFT JOIN video as v ON u.id = v.usuario_id" + " WHERE u.id = ? GROUP BY u.id;";
 
-	private static final String SQL_GET_ALL_BY_NOMBRE = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, COUNT(v.id) as num_videos"
+	private static final String SQL_GET_ALL_BY_NOMBRE = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, "
+			+ " (SELECT COUNT(*) FROM video as v WHERE u.id = v.usuario_id) as num_videos"
 			+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
 			+ " LEFT JOIN video as v ON u.id = v.usuario_id"
-			+ " WHERE u.nombre LIKE ? GROUP BY u.id ORDER BY u.nombre DESC LIMIT 500;";
+			+ " WHERE u.nombre LIKE ? GROUP BY u.id";
 
-	private static final String SQL_GET_ALL_BY_NOMBRE_ORDER = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, COUNT(v.id) as num_videos"
+	private String SQL_GET_ALL_BY_NOMBRE_ORDER = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, '5' as num_videos"
 			+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
-			+ " LEFT JOIN video as v ON u.id = v.usuario_id" + " WHERE u.nombre LIKE ? ORDER BY u.nombre ? LIMIT 500;";
+			+ " LEFT JOIN video as v ON u.id = v.usuario_id" + " WHERE u.nombre LIKE ? ";
 
 	private static final String SQL_EXISTE = " SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, 0 as num_videos "
 			+ " FROM usuario as u, rol as r " + " WHERE u.id_rol = r.id AND u.nombre = ? AND contrasenya = ? ;";
@@ -40,15 +41,6 @@ public class UsuarioDAO {
 	// private static final String SQL_DELETE = "DELETE FROM usuario WHERE id = ?;";
 	private static final String SQL_DELETE_LOGICO = "UPDATE usuario SET fecha_eliminacion = CURRENT_TIMESTAMP() WHERE id = ?;";
 
-	/*
-	 * IMPORTANTE:
-	 * 
-	 * Habia hecho consultas para la aplicacion con el numero de videos del usuario,
-	 * likes, etc. A posterior se nos pide otra cosa, asi que no voy a ponerme a
-	 * cambiar ahora las consultas antiguas y petar la app asi que creo unas
-	 * consuktas nuevas poniendo _JSON al final
-	 * 
-	 */
 
 	private UsuarioDAO() {
 		super();
@@ -146,18 +138,25 @@ public class UsuarioDAO {
 	}
 
 	public ArrayList<Usuario> getAllByNombreOrder(String nombre, String order) {
+		
+		SQL_GET_ALL_BY_NOMBRE_ORDER = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, (SELECT COUNT(*) FROM video as v WHERE u.id = v.usuario_id) as num_videos"
+				+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
+				+ "  WHERE u.nombre LIKE ? ";
+		
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();
 
+		if (order.equals("asc")) {
+			SQL_GET_ALL_BY_NOMBRE_ORDER += "ORDER BY u.nombre ASC LIMIT 500";
+		} else {
+			SQL_GET_ALL_BY_NOMBRE_ORDER += "ORDER BY u.nombre DESC LIMIT 500";
+		}
+		
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_ALL_BY_NOMBRE_ORDER);) {
 
 			pst.setString(1, "%" + nombre + "%");
 
-			if (order.equals("asc")) {
-				pst.setString(2, "ASC");
-			} else {
-				pst.setString(2, "DESC");
-			}
+			
 			try (ResultSet rs = pst.executeQuery()) {
 
 				while (rs.next()) {
