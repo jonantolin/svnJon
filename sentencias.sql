@@ -47,5 +47,20 @@ FROM
 WHERE
 	u.id = v.usuario_id AND
     v.categoria_id = c.id;	
+    
+   
+    
+ -- Numero de likes que tiene cada categoria
+
+SELECT c.nombre as nombre_categoria, 
+(SELECT COUNT(*) FROM video as v, likes as l WHERE v.categoria_id = c.id AND v.id = l.id_video) as num_likes
+FROM categoria as c;
 	
+
+-- Nombre de los departamentos donde todos los trabajadores cobren menos de 2000e
+
+SELECT DISTINCT d.nombre
+FROM departamento as d, empleado as e
+WHERE d.id = e.departamento_id AND d.nombre NOT IN (SELECT d.nombre FROM departamento as d, empleado as e WHERE e.departamento_id = d.id AND e.salario > 2000 )
+;
 	

@@ -69,6 +69,7 @@ public class ImportUserController extends HttpServlet {
 
 						usuario.setNombre(nombre);
 						usuario.setContrasenya(lineaA[5]);
+						usuario.getRol().setId(2);
 
 						try {
 
