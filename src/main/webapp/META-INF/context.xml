@@ -8,7 +8,7 @@
 		maxWait="10000" 
 		name="jdbc/mydb"	 
 		type="javax.sql.DataSource"
-		url="jdbc:mysql://localhost:3306/v2019_jon_gaizka" 
+		url="jdbc:mysql://localhost:3306/v2019" 
 		username="root"
 		password="root" 
 		/>
