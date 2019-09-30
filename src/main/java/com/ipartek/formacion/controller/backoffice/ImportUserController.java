@@ -42,11 +42,13 @@ public class ImportUserController extends HttpServlet {
 		int insertadas = 0;
 		int erroneas = 0;
 
-		FileReader lector = new FileReader("C:\\1713\\eclipse-workspace2\\svnJon\\personas.txt");
+		
 
 		long tiempoAntes = System.currentTimeMillis();
 
-		try (Connection con = ConnectionManager.getConnection(); BufferedReader buffer = new BufferedReader(lector)) {
+		try (Connection con = ConnectionManager.getConnection();
+				FileReader lector = new FileReader("C:\\Users\\Jon\\eclipse-workspace2\\svnJon\\personas.txt");
+				BufferedReader buffer = new BufferedReader(lector)) {
 
 			con.setAutoCommit(false);
 

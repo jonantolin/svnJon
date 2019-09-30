@@ -18,7 +18,7 @@ UPDATE usuario SET nombre= ?, contrasenya= ? WHERE id = ?;
 
 
 -- numero de likes del Fary
--- SELECT COUNT(*) as 'numero_likes' FROM likes WHERE video_id = 4;
+-- SELECT COUNT(*) as 'numero_likes' FROM likes WHERE usuario_id = 4;
 
 -- INNER JOIN EXPLICITA
 -- mostrar los videos del usuario 'soso' por su id
@@ -46,14 +46,15 @@ FROM
    
 WHERE
 	u.id = v.usuario_id AND
-    v.categoria_id = c.id;	
+    v.categoria_id = c.id AND
+    u.id = 3;	
     
    
     
  -- Numero de likes que tiene cada categoria
 
 SELECT c.nombre as nombre_categoria, 
-(SELECT COUNT(*) FROM video as v, likes as l WHERE v.categoria_id = c.id AND v.id = l.id_video) as num_likes
+(SELECT COUNT(*) FROM video as v, likes as l WHERE v.categoria_id = c.id AND v.id = l.video_id) as num_likes
 FROM categoria as c;
 	
 
@@ -63,6 +64,14 @@ SELECT DISTINCT d.nombre
 FROM departamento as d, empleado as e
 WHERE d.id = e.departamento_id AND d.nombre NOT IN (SELECT d.nombre FROM departamento as d, empleado as e WHERE e.departamento_id = d.id AND e.salario > 2000 )
 ;
+
+-- numero de empleados de cada departamento (hay 2 departamentos que NO tienen ningun empleado)
+
+SELECT COUNT(empleado.nombre), d.nombre 
+FROM empleado 
+RIGHT JOIN departamento as d 
+ON empleado.departamento_id = d.id 
+GROUP BY d.nombre;
 
 -- Trigger para meter los videos eliminados en una tabla auxiliar
 

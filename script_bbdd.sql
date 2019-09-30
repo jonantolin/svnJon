@@ -146,11 +146,11 @@ INSERT INTO `likes` VALUES (2,3,'2019-09-22 08:23:59'),(2,8,'2019-09-22 09:06:45
 UNLOCK TABLES;
 
 DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `TAD_videos` AFTER DELETE ON `video` FOR EACH ROW BEGIN
+CREATE DEFINER=`root`@`localhost`TRIGGER `TAD_videos` AFTER DELETE ON `video` FOR EACH ROW BEGIN
 	INSERT INTO videos_eliminados(id_antiguo, nombre, codigo, usuario_id, categoria_id) 
     VALUES (OLD.id, OLD.nombre, OLD.codigo, OLD.usuario_id, OLD.categoria_id);
 
-END */;;
+END ;
 DELIMITER ;
 
 
@@ -183,7 +183,7 @@ UNLOCK TABLES;
 
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `borrar_usuarios`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `borrar_usuarios`()
 BEGIN
 	DELETE FROM usuario 
     WHERE id > 6;
@@ -200,7 +200,7 @@ END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `create_rol`(IN pnombre VARCHAR(50), OUT idGenerada INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_rol`(IN pnombre VARCHAR(50), OUT idGenerada INT)
 BEGIN
 	INSERT INTO rol (nombre) VALUES(pnombre);
     SET idGenerada = LAST_INSERT_ID();
@@ -209,14 +209,14 @@ END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `delete_categoria`(IN pId INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_categoria`(IN pId INT)
 BEGIN
 	DELETE FROM categoria WHERE id = pId;
 END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `delete_rol`(IN pId INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_rol`(IN pId INT)
 BEGIN
 	DELETE FROM rol WHERE id = pId;
 END ;;
@@ -250,7 +250,7 @@ END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `getById_rol`(IN pid INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getById_rol`(IN pid INT)
 BEGIN
 	SELECT id, nombre
     FROM rol
@@ -260,14 +260,14 @@ END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `update_categoria`(IN pNombre VARCHAR(45), IN pId INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_categoria`(IN pNombre VARCHAR(45), IN pId INT)
 BEGIN
 	UPDATE categoria SET nombre = pNombre WHERE id = pId;
 END ;;
 DELIMITER ;
 
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `update_rol`(IN pNombre VARCHAR(45), IN pId INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_rol`(IN pNombre VARCHAR(45), IN pId INT)
 BEGIN
 	UPDATE rol SET nombre = pNombre WHERE id = pId;
 END ;;
