@@ -3,14 +3,18 @@ package com.ipartek.formacion.controller.backoffice;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.ipartek.formacion.model.ConnectionManager;
 import com.ipartek.formacion.model.dao.UsuarioDAO;
 import com.ipartek.formacion.model.pojo.Usuario;
 
@@ -21,12 +25,10 @@ import com.ipartek.formacion.model.pojo.Usuario;
 public class ImportUserController extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private UsuarioDAO usuarioDAO;
 
-	public void init(ServletConfig config) throws ServletException {
+	private final static Log LOG = LogFactory.getLog(ImportUserController.class);
 
-		usuarioDAO = UsuarioDAO.getInstance();
-	}
+	private UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -36,70 +38,71 @@ public class ImportUserController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-
 		int leidas = 0;
 		int insertadas = 0;
 		int erroneas = 0;
 
+		FileReader lector = new FileReader("C:\\1713\\eclipse-workspace2\\svnJon\\personas.txt");
+
 		long tiempoAntes = System.currentTimeMillis();
 
-		try {
-			FileReader lector = new FileReader("C:\\Users\\Jon\\eclipse-workspace2\\svnJon\\personas.txt");
-			BufferedReader buffer = new BufferedReader(lector);
+		try (Connection con = ConnectionManager.getConnection(); BufferedReader buffer = new BufferedReader(lector)) {
+
+			con.setAutoCommit(false);
 
 			boolean eof = false;
-			
+
+			Usuario usuario;
+
 			while (!eof) {
-				
+
 				String linea = buffer.readLine();
 				if (linea == null) {
 					eof = true;
-					
+
 				} else {
 
 					leidas++;
 
-					Usuario usuario = new Usuario();
+					usuario = new Usuario();
 
-					String[] lineaA = linea.split(","); 
-					
-					if(lineaA.length == 7) {
-						
-						String nombre = lineaA[0] + " " + lineaA[1] + " " + lineaA[2];
+					String[] lineaA = linea.split(",");
 
-						usuario.setNombre(nombre);
+					if (lineaA.length == 7) {
+
+						usuario.setNombre(lineaA[0] + " " + lineaA[1] + " " + lineaA[2]);
 						usuario.setContrasenya(lineaA[5]);
-						usuario.getRol().setId(2);
 
 						try {
 
-							usuarioDAO.crear(usuario);
+							usuarioDAO.importarMuchos(usuario, con);
 							insertadas++;
 
-						} catch (Exception e) {
+						} catch (Exception e) { // error en la BD
 
 							erroneas++;
+
 						}
-						
-					}else {
-						
+
+					} else { // error de lectura del fichero de texto
+
 						erroneas++;
-						
+
 					}
 				}
 			} // end while
-			buffer.close();
+
+			con.commit();
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
 		long tardadoMiliSegundos = System.currentTimeMillis() - tiempoAntes;
 		long tardadoSegundos = tardadoMiliSegundos / 1000;
-		int tardadoMin = (int) (tardadoSegundos / 60);
-		int segundos = (int) (tardadoSegundos % 60);
 
+		request.setAttribute("milisegundos", tardadoMiliSegundos);
 		request.setAttribute("segundos", tardadoSegundos);
-		request.setAttribute("minutos", segundos);
 
 		request.setAttribute("leidas", leidas);
 		request.setAttribute("insertadas", insertadas);
@@ -108,26 +111,5 @@ public class ImportUserController extends HttpServlet {
 		request.getRequestDispatcher("importacion.jsp").forward(request, response);
 
 	}
-
-	/*
-	 * public ArrayList<String> leerMensaje() {
-	 * 
-	 * ArrayList<String> listaPrueba = new ArrayList<String>();
-	 * 
-	 * try { FileReader lector = new
-	 * FileReader("C:\\1713\\eclipse-workspace2\\svnJon\\personas_prueba.txt");
-	 * BufferedReader buffer = new BufferedReader(lector);
-	 * 
-	 * boolean eof = false; while (!eof) { String linea = buffer.readLine(); if
-	 * (linea == null) { eof = true; } else {
-	 * 
-	 * String[] lineaA = linea.split(","); // hacer pruebas listaPrueba.add(linea);
-	 * 
-	 * } } buffer.close(); } catch (Exception ex) { ex.printStackTrace(); }
-	 * 
-	 * return listaPrueba;
-	 * 
-	 * }
-	 */
 
 }

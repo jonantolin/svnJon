@@ -14,8 +14,9 @@
 <p class="text-success">Líneas insertadas: ${insertadas } </p>
 <p class="text-danger">Líneas erroneas: ${erroneas } </p>
 
-<p class="text-danger">Minutos: ${minutos } </p>
+
 <p class="text-danger">Segundos: ${segundos } </p>
+<p class="text-danger">MiliSegundos: ${milisegundos } </p>
 
 
 

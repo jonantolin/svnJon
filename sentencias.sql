@@ -63,4 +63,14 @@ SELECT DISTINCT d.nombre
 FROM departamento as d, empleado as e
 WHERE d.id = e.departamento_id AND d.nombre NOT IN (SELECT d.nombre FROM departamento as d, empleado as e WHERE e.departamento_id = d.id AND e.salario > 2000 )
 ;
+
+-- Trigger para meter los videos eliminados en una tabla auxiliar
+
+CREATE DEFINER=`root`@`%` TRIGGER `TAD_videos` AFTER DELETE ON `video` FOR EACH ROW 
+BEGIN
+
+	INSERT INTO videos_eliminados(id_antiguo, nombre, codigo, usuarios_id, categoria_id) 
+    VALUES (OLD.id, OLD.nombre, OLD.codigo, OLD.usuario_id, OLD.categoria_id);
+
+END
 	

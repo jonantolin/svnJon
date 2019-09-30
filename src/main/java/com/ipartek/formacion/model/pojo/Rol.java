@@ -10,7 +10,7 @@ public class Rol {
 
 	public Rol() {
 		super();
-		this.id = -1;
+		this.id = 2;
 		this.nombre = "";
 	}
 

@@ -27,8 +27,7 @@ public class UsuarioDAO {
 	private static final String SQL_GET_ALL_BY_NOMBRE = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, "
 			+ " (SELECT COUNT(*) FROM video as v WHERE u.id = v.usuario_id) as num_videos"
 			+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
-			+ " LEFT JOIN video as v ON u.id = v.usuario_id"
-			+ " WHERE u.nombre LIKE ? GROUP BY u.id";
+			+ " LEFT JOIN video as v ON u.id = v.usuario_id" + " WHERE u.nombre LIKE ? GROUP BY u.id";
 
 	private String SQL_GET_ALL_BY_NOMBRE_ORDER = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, '5' as num_videos"
 			+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
@@ -40,7 +39,6 @@ public class UsuarioDAO {
 	private static final String SQL_UPDATE = "UPDATE usuario SET nombre= ?, contrasenya= ? WHERE id = ?;";
 	// private static final String SQL_DELETE = "DELETE FROM usuario WHERE id = ?;";
 	private static final String SQL_DELETE_LOGICO = "UPDATE usuario SET fecha_eliminacion = CURRENT_TIMESTAMP() WHERE id = ?;";
-
 
 	private UsuarioDAO() {
 		super();
@@ -138,11 +136,10 @@ public class UsuarioDAO {
 	}
 
 	public ArrayList<Usuario> getAllByNombreOrder(String nombre, String order) {
-		
+
 		SQL_GET_ALL_BY_NOMBRE_ORDER = "SELECT u.id, u.nombre, r.id as 'id_rol', r.nombre as 'nombre_rol', contrasenya, fecha_creacion, fecha_eliminacion, (SELECT COUNT(*) FROM video as v WHERE u.id = v.usuario_id) as num_videos"
-				+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id"
-				+ "  WHERE u.nombre LIKE ? ";
-		
+				+ " FROM usuario as u INNER JOIN rol as r ON u.id_rol = r.id" + "  WHERE u.nombre LIKE ? ";
+
 		ArrayList<Usuario> lista = new ArrayList<Usuario>();
 
 		if (order.equals("asc")) {
@@ -150,13 +147,12 @@ public class UsuarioDAO {
 		} else {
 			SQL_GET_ALL_BY_NOMBRE_ORDER += "ORDER BY u.nombre DESC LIMIT 500";
 		}
-		
+
 		try (Connection con = ConnectionManager.getConnection();
 				PreparedStatement pst = con.prepareStatement(SQL_GET_ALL_BY_NOMBRE_ORDER);) {
 
 			pst.setString(1, "%" + nombre + "%");
 
-			
 			try (ResultSet rs = pst.executeQuery()) {
 
 				while (rs.next()) {
@@ -249,6 +245,19 @@ public class UsuarioDAO {
 		}
 
 		return pojo;
+	}
+
+	public void importarMuchos(Usuario pojo, Connection con) throws Exception {
+
+		try (PreparedStatement pst = con.prepareStatement(SQL_INSERT)) {
+
+			pst.setString(1, pojo.getNombre());
+			pst.setString(2, pojo.getContrasenya());
+
+			pst.executeUpdate();
+
+		}
+
 	}
 
 	private Usuario mapper(ResultSet rs) throws SQLException {
