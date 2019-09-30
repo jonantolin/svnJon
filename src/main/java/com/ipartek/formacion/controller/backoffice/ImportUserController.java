@@ -81,12 +81,14 @@ public class ImportUserController extends HttpServlet {
 						} catch (Exception e) { // error en la BD
 
 							erroneas++;
+							LOG.warn("***Linea error***" + linea);
 
 						}
 
 					} else { // error de lectura del fichero de texto
 
 						erroneas++;
+						LOG.warn("***Linea error***" + linea);
 
 					}
 				}
@@ -107,6 +109,13 @@ public class ImportUserController extends HttpServlet {
 		request.setAttribute("leidas", leidas);
 		request.setAttribute("insertadas", insertadas);
 		request.setAttribute("erroneas", erroneas);
+
+		LOG.info("------------ proceso migracion terminado ---------------");
+		LOG.info("Leidas : " + leidas);
+		LOG.info("Insertadas : " + insertadas);
+		LOG.info("Erroneas : " + erroneas);
+		LOG.info("Tiempo " + tardadoMiliSegundos + "ms");
+		LOG.info("------------ proceso migracion terminado ---------------");
 
 		request.getRequestDispatcher("importacion.jsp").forward(request, response);
 
